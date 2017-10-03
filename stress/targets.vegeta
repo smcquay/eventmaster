@@ -1,0 +1,15 @@
+GET http://localhost:50052/v1/dc
+GET http://localhost:50052/v1/topic
+GET http://localhost:50052/metrics
+GET http://localhost:50052/version/
+
+POST http://localhost:50052/grafana/annotations
+@./stress/ann-req.json
+
+POST http://localhost:50052/grafana/search 
+@./stress/topic-search.json
+
+POST http://localhost:50052/grafana/search
+@./stress/dc-search.json
+
+GET http://localhost:50052/v1/event?start_event_time=1506975660&end_event_time=1506980760&limit=100
