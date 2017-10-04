@@ -2,6 +2,8 @@ GET http://localhost:50052/v1/dc
 GET http://localhost:50052/v1/topic
 GET http://localhost:50052/metrics
 GET http://localhost:50052/version/
+GET http://localhost:50052/v1/topic/foo
+GET http://localhost:50052/v1/event/foo
 
 POST http://localhost:50052/grafana/annotations
 @./stress/ann-req.json
