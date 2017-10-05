@@ -1,6 +1,7 @@
 package eventmaster
 
 import (
+	"log"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -13,6 +14,10 @@ import (
 	tmpl "github.com/ContextLogic/eventmaster/templates"
 	"github.com/ContextLogic/eventmaster/ui"
 )
+
+func init() {
+	log.SetFlags(log.Ltime | log.Lshortfile | log.Lmicroseconds)
+}
 
 // Server implements http.Handler for the eventmaster http server.
 type Server struct {
@@ -66,7 +71,7 @@ func NewServer(store *EventStore, static, templates string) *Server {
 		templates: t,
 	}
 
-	srv.handler = registerRoutes(srv)
+	srv.handler = &logger{registerRoutes(srv)}
 
 	return srv
 }
@@ -126,4 +131,17 @@ func latency(prefix string, h httprouter.Handle) httprouter.Handle {
 
 		metrics.HTTPStatus(prefix, lw.Status())
 	}
+}
+
+type logger struct {
+	http.Handler
+}
+
+func (l *logger) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	s := time.Now()
+	sr := NewStatusRecorder(w)
+	defer func() {
+		log.Printf("%v %v %v %v", req.URL.Path, req.Method, sr.Status(), time.Since(s))
+	}()
+	l.Handler.ServeHTTP(sr, req)
 }
